@@ -1,0 +1,13 @@
+# --- Mac 系統雜檔 (一定要過濾) ---
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- 腳本執行時的備份檔 ---
+# 我們在 Makefile 裡有寫 cp .zshrc .zshrc.backup
+*.backup
+*.swp
+
+# --- 其他可能產生的暫存檔 ---
+Thumbs.db
+._*
