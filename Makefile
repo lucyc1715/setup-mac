@@ -1,7 +1,17 @@
 # 定義預設任務：輸入 make 就會跑這四個步驟
 .PHONY: all install-homebrew install-apps setup-zsh setup-macos help
 
-all: install-homebrew install-apps setup-zsh setup-macos help
+all: sudo-keep-alive install-homebrew install-apps setup-zsh setup-macos help
+
+# --- 0. 權限延長 (Sudo Keep-alive) ---
+# 1. sudo -v 會立刻要求使用者輸入密碼 (只要這一次)
+# 2. while loop 會在背景每 60 秒幫你更新一次權限
+# 3. 這樣不管安裝跑多久，都不會因為逾時而中斷
+sudo-keep-alive:
+	@echo "🔑 [0/5] 請輸入密碼以授權安裝 (之後就可以去喝咖啡了)..."
+	@sudo -v
+	@while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+	@echo "✅ 已取得授權，將保持登入狀態直到安裝完成"
 
 # 步驟 1: 安裝 Homebrew
 install-homebrew:
