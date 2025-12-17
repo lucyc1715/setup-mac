@@ -16,13 +16,18 @@ sudo-keep-alive:
 # 步驟 1: 安裝 Homebrew
 install-homebrew:
 	@echo "🍺 [1/5] 檢查 Homebrew..."
-	@which brew > /dev/null || /bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	@if ! which brew > /dev/null; then \
+		/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
+		echo 'eval "$$(/opt/homebrew/bin/brew shellenv)"' >> $$HOME/.zprofile; \
+		eval "$$(/opt/homebrew/bin/brew shellenv)"; \
+	fi
 	@echo "✅ Homebrew 準備就緒"
 
 # 步驟 2: 依照 Brewfile 安裝軟體
 install-apps:
-	@echo "📦 [2/5] 開始安裝軟體清單 (這需要一點時間，可以去喝杯咖啡)..."
-	brew bundle --file=./Brewfile
+	@echo "📦 [2/5] 開始安裝軟體清單..."
+	# 這裡最重要：在執行 brew 之前，先載入路徑設定
+	@eval "$$(/opt/homebrew/bin/brew shellenv)" && brew bundle || true --file=./Brewfile
 	@echo "✅ 軟體安裝完成"
 
 # 步驟 3: 設定 Zsh + Dracula 主題 + 插件
