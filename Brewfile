@@ -1,8 +1,3 @@
-# --- Homebrew 設定 ---
-tap "homebrew/bundle"
-tap "homebrew/cask-fonts"
-tap "homebrew/cask-versions"
-
 # --- 1. 開發工具 (CLI) ---
 brew "git"
 brew "node"             # 包含 npm
