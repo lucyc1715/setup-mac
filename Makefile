@@ -109,7 +109,9 @@ manual-setup: ## [5/5] 顯示需手動完成的設定清單
 	@echo "   - Screen Recording: 允許 Snipaste, Zoom"
 	@echo "   - Accessibility: 允許 Snipaste"
 	@echo "   - Microphone/Camera: 允許 Zoom"
-	@echo "4. [重啟 Terminal]: 輸入 'source ~/.zshrc' 或重開視窗即生效。"
+	@echo "4. [低電量通知] (System Settings -> Notifications):"
+	@echo "   - 打開「電量提醒」的『允許通知』(樣式建議『提示』)，否則背景低電量通知不會跳。"
+	@echo "5. [重啟 Terminal]: 輸入 'source ~/.zshrc' 或重開視窗即生效。"
 	@echo "==================================================="
 
 # ========== 低電量模擬器代理 ==========

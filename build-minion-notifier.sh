@@ -29,6 +29,17 @@ fi
 [ -f "$ICON_PNG" ] || { echo "（找不到 minions-bob.png，略過小小兵 app）"; exit 0; }
 command -v codesign >/dev/null 2>&1 || { echo "（沒有 codesign / Xcode CLT，略過小小兵 app）"; exit 0; }
 
+# Idempotency: if the app already exists and the source image hasn't changed,
+# DON'T rebuild. Rebuilding re-signs the bundle, which can make macOS reset the
+# user's notification authorization (System Settings > Notifications). Skipping
+# keeps that permission stable. To force a rebuild, replace minions-bob.png or
+# delete LowBatteryMinion.app first.
+EXISTING_ICNS="$(ls "$DST"/Contents/Resources/*.icns 2>/dev/null | head -1)"
+if [ -n "$EXISTING_ICNS" ] && [ ! "$ICON_PNG" -nt "$EXISTING_ICNS" ]; then
+    echo "小小兵 app 已存在且圖未更新，略過重建（保留通知授權）"
+    exit 0
+fi
+
 rm -rf "$DST"
 cp -R "$SRC" "$DST"
 
