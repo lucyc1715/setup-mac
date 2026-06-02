@@ -16,19 +16,26 @@ CRIT_FLAG="$STATE_DIR/warned-${CRIT_THRESHOLD}"
 
 mkdir -p "$STATE_DIR"
 
-# Prefer terminal-notifier (custom sender/icon, subtitle, grouped) if installed;
+# Prefer terminal-notifier (custom icon, subtitle, grouped) if installed;
 # otherwise fall back to the built-in osascript notification.
 TN=""
 for p in /opt/homebrew/bin/terminal-notifier /usr/local/bin/terminal-notifier; do
     [ -x "$p" ] && TN="$p" && break
 done
 
+# Custom notification image, kept next to this script so it travels with the
+# repo (the Makefile copies it alongside the deployed script). Optional.
+SCRIPT_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)"
+ICON="$SCRIPT_DIR/minions-bob.png"
+
 notify() {
     # $1 = title, $2 = subtitle, $3 = message
     if [ -n "$TN" ]; then
+        img_args=()
+        [ -f "$ICON" ] && img_args=(-appIcon "$ICON" -contentImage "$ICON")
         "$TN" -title "$1" -subtitle "$2" -message "$3" \
               -sound Glass -group com.user.lowbattery.emulator \
-              -sender com.apple.systempreferences >/dev/null 2>&1
+              "${img_args[@]}" >/dev/null 2>&1
     else
         /usr/bin/osascript -e "display notification \"$3\" with title \"$1\" subtitle \"$2\" sound name \"Glass\"" 2>/dev/null
     fi
