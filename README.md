@@ -82,10 +82,14 @@ make bootstrap
 | `make logs` | 查看低電量動作紀錄 |
 | `make uninstall` | 卸載代理並移除已安裝的檔案 |
 
+**通知圖示(小小兵 🟡)**:macOS 會擋掉 terminal-notifier 的 `-appIcon`,所以要讓通知的「主圖示」變成小小兵,得從一個帶該圖示的 app 發通知。`make deploy` 會自動用本機的 terminal-notifier 複製出一個 `~/Library/Scripts/LowBatteryMinion.app`(換上 `minions-bob.png`、改 bundle id、重簽),腳本就會優先用它發通知。因為是在當台機器即時產生(不把二進位放進 repo),所以 Intel/ARM 換機都沒問題;沒有 terminal-notifier 或圖檔時會自動降級,不影響功能。換圖只要替換 `minions-bob.png` 再 `make reload`。
+
 相關檔案：
 
-  * `low-battery-quit-emulator.sh` — 實際偵測電量並關閉模擬器的腳本。
+  * `low-battery-quit-emulator.sh` — 實際偵測電量、關閉模擬器並發通知的腳本。
   * `com.user.lowbattery.emulator.plist.template` — LaunchAgent 範本（部署時依當前使用者路徑產生）。
+  * `build-minion-notifier.sh` — 產生小小兵圖示通知 app（由 `make deploy` 自動呼叫）。
+  * `minions-bob.png` — 通知用的小小兵圖（512×512）。
 
 ---
 

@@ -16,23 +16,27 @@ CRIT_FLAG="$STATE_DIR/warned-${CRIT_THRESHOLD}"
 
 mkdir -p "$STATE_DIR"
 
-# Prefer terminal-notifier (custom icon, subtitle, grouped) if installed;
-# otherwise fall back to the built-in osascript notification.
-TN=""
-for p in /opt/homebrew/bin/terminal-notifier /usr/local/bin/terminal-notifier; do
-    [ -x "$p" ] && TN="$p" && break
-done
-
-# Custom notification image, kept next to this script so it travels with the
-# repo (the Makefile copies it alongside the deployed script). Optional.
+# Notification backend, best first:
+#   1. LowBatteryMinion.app  — terminal-notifier copy whose MAIN icon is the
+#      minion (built by build-minion-notifier.sh during deploy).
+#   2. plain terminal-notifier — minion shown as a side image (-contentImage).
+#   3. osascript            — built-in fallback, no custom image.
 SCRIPT_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)"
 ICON="$SCRIPT_DIR/minions-bob.png"
+APP_BIN="$HOME/Library/Scripts/LowBatteryMinion.app/Contents/MacOS/terminal-notifier"
+
+TN=""
+for p in "$APP_BIN" /opt/homebrew/bin/terminal-notifier /usr/local/bin/terminal-notifier; do
+    [ -x "$p" ] && TN="$p" && break
+done
 
 notify() {
     # $1 = title, $2 = subtitle, $3 = message
     if [ -n "$TN" ]; then
         img_args=()
-        [ -f "$ICON" ] && img_args=(-appIcon "$ICON" -contentImage "$ICON")
+        # Only add a side image when NOT using the minion app (which already
+        # shows the minion as its main icon — no need to show it twice).
+        [ "$TN" != "$APP_BIN" ] && [ -f "$ICON" ] && img_args=(-contentImage "$ICON")
         "$TN" -title "$1" -subtitle "$2" -message "$3" \
               -sound Glass -group com.user.lowbattery.emulator \
               "${img_args[@]}" >/dev/null 2>&1
