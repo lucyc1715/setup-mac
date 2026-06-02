@@ -64,9 +64,14 @@ make bootstrap
 
 ---
 
-## 二、低電量自動關閉模擬器
+## 二、低電量提醒 + 自動關閉模擬器
 
-當電腦用電池供電且電量 ≤ 20% 時，自動關閉 iOS Simulator 與 Android Emulator，避免它們把電吃光。
+在「用電池供電且放電中」時，LaunchAgent 每 60 秒檢查一次電量：
+
+- **≤ 30%** → 跳通知提醒「記得接電源」（含提示音）。
+- **≤ 20%** → 自動關閉 iOS Simulator 與 Android Emulator，並再跳一次通知。
+
+每次掉電各只提醒一次，**接上電源充電後自動重置**，下次放電會再提醒。門檻可在 [low-battery-quit-emulator.sh](low-battery-quit-emulator.sh) 開頭的 `WARN_THRESHOLD` / `CRIT_THRESHOLD` 調整（改完跑 `make reload`）。此功能**不會讓 Mac 休眠**。
 
 | 指令 | 說明 |
 | --- | --- |
