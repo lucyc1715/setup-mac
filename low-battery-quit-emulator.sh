@@ -16,9 +16,22 @@ CRIT_FLAG="$STATE_DIR/warned-${CRIT_THRESHOLD}"
 
 mkdir -p "$STATE_DIR"
 
+# Prefer terminal-notifier (custom sender/icon, subtitle, grouped) if installed;
+# otherwise fall back to the built-in osascript notification.
+TN=""
+for p in /opt/homebrew/bin/terminal-notifier /usr/local/bin/terminal-notifier; do
+    [ -x "$p" ] && TN="$p" && break
+done
+
 notify() {
-    # $1 = title, $2 = message
-    /usr/bin/osascript -e "display notification \"$2\" with title \"$1\" sound name \"Glass\"" 2>/dev/null
+    # $1 = title, $2 = subtitle, $3 = message
+    if [ -n "$TN" ]; then
+        "$TN" -title "$1" -subtitle "$2" -message "$3" \
+              -sound Glass -group com.user.lowbattery.emulator \
+              -sender com.apple.systempreferences >/dev/null 2>&1
+    else
+        /usr/bin/osascript -e "display notification \"$3\" with title \"$1\" subtitle \"$2\" sound name \"Glass\"" 2>/dev/null
+    fi
 }
 
 batt="$(/usr/bin/pmset -g batt)"
@@ -59,9 +72,9 @@ if [ "$pct" -le "$CRIT_THRESHOLD" ]; then
     # Notify once per discharge cycle.
     if [ ! -f "$CRIT_FLAG" ]; then
         if [ -n "$quit" ]; then
-            notify "🔋 電量只剩 ${pct}%" "已自動關閉模擬器：${quit}。請盡快接上電源。"
+            notify "🔋 電量過低" "目前 ${pct}%" "已自動關閉模擬器：${quit}。請盡快接上電源。"
         else
-            notify "🔋 電量只剩 ${pct}%" "電量過低，請盡快接上電源。"
+            notify "🔋 電量過低" "目前 ${pct}%" "請盡快接上電源。"
         fi
         touch "$CRIT_FLAG"
     fi
@@ -69,7 +82,7 @@ if [ "$pct" -le "$CRIT_THRESHOLD" ]; then
 elif [ "$pct" -le "$WARN_THRESHOLD" ]; then
     # Early heads-up, once per discharge cycle.
     if [ ! -f "$WARN_FLAG" ]; then
-        notify "🔋 電量偏低 (${pct}%)" "記得接上電源。低於 ${CRIT_THRESHOLD}% 時會自動關閉模擬器。"
+        notify "🔋 電量偏低" "目前 ${pct}%" "記得接上電源。低於 ${CRIT_THRESHOLD}% 時會自動關閉模擬器。"
         touch "$WARN_FLAG"
     fi
 fi

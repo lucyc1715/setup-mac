@@ -3,6 +3,7 @@ brew "git"
 brew "node"             # 包含 npm
 brew "pnpm"
 brew "mas"              # Mac App Store 命令行工具
+brew "terminal-notifier" # 低電量提醒用的漂亮通知
 
 # --- 2. 應用程式 (Cask) ---
 # 開發類
